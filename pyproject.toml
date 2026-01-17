@@ -1,6 +1,6 @@
 [project]
 name = "akshare-two"
-version = "0.3.17"
+version = "1.0.0"
 description = "Standardized interface for Chinese financial market data, built on AKShare with unified data formats and simplified APIs"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -13,8 +13,8 @@ license = "MIT"
 keywords = ["akshare", "financial-data", "stock-data", "quant"]
 
 [project.urls]
-Homepage = "https://github.com/zwldarren/akshare-two"
-Repository = "https://github.com/zwldarren/akshare-two.git"
+Homepage = "https://github.com/stdeson/akshare-two"
+Repository = "https://github.com/stdeson/akshare-two.git"
 
 [project.optional-dependencies]
 talib = ["ta-lib>=0.6.4"]
