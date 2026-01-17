@@ -1,41 +1,41 @@
-from .base import InsiderDataProvider
-from .xueqiu import XueQiuInsider
+from .base import InfoDataProvider
+from .eastmoney_direct import EastMoneyDirectInfo
 
 
-class InsiderDataFactory:
+class InfoDataFactory:
     """
-    Factory class for creating insider data providers
+    Factory class for creating info data providers
     """
 
     _providers = {
-        "xueqiu": XueQiuInsider,
+        "eastmoney_direct": EastMoneyDirectInfo,
     }
 
     @classmethod
-    def get_provider(cls, provider_name: str, **kwargs) -> InsiderDataProvider:  # type: ignore
+    def get_provider(cls, provider_name: str, **kwargs) -> InfoDataProvider:  # type: ignore
         """
-        Get an insider data provider by name
+        Get a info data provider by name
 
         Args:
-            provider_name: Name of the provider (e.g., 'xueqiu')
+            provider_name: Name of the provider (e.g., 'eastmoney')
             **kwargs: Additional arguments to pass to the provider's constructor
 
         Returns:
-            InsiderDataProvider: An instance of the requested provider
+            InfoDataProvider: An instance of the requested provider
 
         Raises:
             ValueError: If the requested provider is not found
         """
         provider_class = cls._providers.get(provider_name.lower())
         if not provider_class:
-            raise ValueError(f"Unknown insider data provider: {provider_name}")
+            raise ValueError(f"Unknown info data provider: {provider_name}")
 
         return provider_class(**kwargs)
 
     @classmethod
     def register_provider(cls, name: str, provider_class: type) -> None:
         """
-        Register a new insider data provider
+        Register a new info data provider
 
         Args:
             name: Name to associate with this provider

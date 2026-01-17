@@ -1,7 +1,6 @@
 from .base import RealtimeDataProvider
-from .eastmoney import EastmoneyRealtime
 from .eastmoney_direct import EastMoneyDirectRealtime
-from .xueqiu import XueQiuRealtime
+from .xueqiu_direct import XueqiuDirectRealtime
 
 
 class RealtimeDataFactory:
@@ -10,9 +9,8 @@ class RealtimeDataFactory:
     """
 
     _providers: dict[str, type["RealtimeDataProvider"]] = {
-        "eastmoney": EastmoneyRealtime,
-        "xueqiu": XueQiuRealtime,
         "eastmoney_direct": EastMoneyDirectRealtime,
+        "xueqiu_direct": XueqiuDirectRealtime,
     }
 
     @classmethod

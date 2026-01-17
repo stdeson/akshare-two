@@ -1,11 +1,13 @@
 <div align="center">
-  <h1>AKShare One</h1>
+  <h1>AKShare Two</h1>
   <div>
     <a href="README_zh.md">中文</a> | <strong>English</strong>
   </div>
 </div>
 
-**AKShare One** is a data interface for obtaining Chinese A-shares, based on [AKShare](https://github.com/akfamily/akshare). It aims to simplify AKShare's usage and unify input/output formats from different data sources, making it easier to pass data to LLM.
+> **Note**: This project is forked from [AKShare One](https://github.com/akfamily/akshare-one) but uses `akshare-two` as the package name for personal use and distribution.
+
+**AKShare Two** is a direct API data interface for obtaining Chinese A-shares. It provides direct connections to data sources (EastMoney, Sina, Xueqiu) without depending on the AKShare library, offering better control and avoiding dependency conflicts.
 
 ## ✨ Features
 
