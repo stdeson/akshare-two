@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 import requests
 
-from akshare_one.modules.cache import cache
+from akshare_two.modules.cache import cache
 
 from .base import FinancialDataProvider
 

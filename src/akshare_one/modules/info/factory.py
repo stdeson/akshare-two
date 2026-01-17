@@ -1,5 +1,6 @@
 from .base import InfoDataProvider
 from .eastmoney import EastmoneyInfo
+from .eastmoney_direct import EastMoneyDirectInfo
 
 
 class InfoDataFactory:
@@ -9,6 +10,7 @@ class InfoDataFactory:
 
     _providers = {
         "eastmoney": EastmoneyInfo,
+        "eastmoney_direct": EastMoneyDirectInfo,
     }
 
     @classmethod

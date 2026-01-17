@@ -2,8 +2,8 @@ from typing import Any
 
 import pandas as pd
 
-from akshare_one.eastmoney.client import EastMoneyClient
-from akshare_one.eastmoney.utils import parse_kline_data, resample_historical_data
+from akshare_two.eastmoney.client import EastMoneyClient
+from akshare_two.eastmoney.utils import parse_kline_data, resample_historical_data
 
 from ..cache import cache
 from .base import HistoricalDataProvider

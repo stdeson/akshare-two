@@ -16,28 +16,28 @@
 
 ## 🚀 核心功能
 
-| 功能 | 接口 |
-|------|------|
-| 历史数据 | `get_hist_data` |
-| 实时行情 | `get_realtime_data` |
-| 个股新闻 | `get_news_data` |
-| 财务数据 | `get_balance_sheet`/`get_income_statement`/`get_cash_flow` |
-| 内部交易 | `get_inner_trade_data` |
-| 股票基本信息 | `get_basic_info` |
-| 财务指标 | `get_financial_metrics` |
-| 技术指标 | 参见 [indicators.py](src/akshare_one/indicators.py) |
+| 功能         | 接口                                                       |
+| ------------ | ---------------------------------------------------------- |
+| 历史数据     | `get_hist_data`                                            |
+| 实时行情     | `get_realtime_data`                                        |
+| 个股新闻     | `get_news_data`                                            |
+| 财务数据     | `get_balance_sheet`/`get_income_statement`/`get_cash_flow` |
+| 内部交易     | `get_inner_trade_data`                                     |
+| 股票基本信息 | `get_basic_info`                                           |
+| 财务指标     | `get_financial_metrics`                                    |
+| 技术指标     | 参见 [indicators.py](src/akshare_two/indicators.py)        |
 
 ## 📦 快速安装
 
 ```bash
-pip install akshare-one
+pip install akshare-two
 ```
 
 ## 💻 使用示例
 
 ```python
-from akshare_one import get_hist_data
-from akshare_one.indicators import get_sma
+from akshare_two import get_hist_data
+from akshare_two.indicators import get_sma
 
 # 获取历史数据
 df = get_hist_data(
@@ -54,4 +54,4 @@ df_sma = get_sma(df, window=20)
 
 完整API文档现已迁移至GitHub Pages：
 
-https://zwldarren.github.io/akshare-one/
+https://zwldarren.github.io/akshare-two/

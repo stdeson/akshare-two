@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from akshare_one import get_hist_data, get_realtime_data
+from akshare_two import get_hist_data, get_realtime_data
 
 
 class TestHistData:
@@ -111,7 +111,7 @@ class TestRealtimeData:
     def test_historical_data_api_error(self):
         """测试历史数据API错误处理"""
         with patch(
-            "akshare_one.modules.historical.eastmoney.EastMoneyHistorical.get_hist_data"
+            "akshare_two.modules.historical.eastmoney.EastMoneyHistorical.get_hist_data"
         ) as mock_get:
             mock_get.side_effect = Exception("API error")
             with pytest.raises(Exception, match="API error"):
@@ -195,7 +195,7 @@ class TestRealtimeData:
     def test_api_error_handling(self):
         """测试API错误处理"""
         with patch(
-            "akshare_one.modules.realtime.eastmoney.EastmoneyRealtime.get_current_data"
+            "akshare_two.modules.realtime.eastmoney.EastmoneyRealtime.get_current_data"
         ) as mock_get:
             mock_get.side_effect = Exception("API error")
             with pytest.raises(Exception, match="API error"):

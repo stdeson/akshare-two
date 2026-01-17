@@ -24,3 +24,30 @@ class InfoDataProvider(ABC):
             - listing_date: 上市时间
         """
         pass
+
+    def get_main_business(self) -> pd.DataFrame:
+        """Fetches main business composition data
+
+        Returns:
+            pd.DataFrame:
+            - report_date: 报告期
+            - business_name: 业务名称
+            - revenue: 营业收入
+            - revenue_ratio: 收入占比
+            - cost: 营业成本
+            - profit: 营业利润
+            - profit_ratio: 利润占比
+        """
+        raise NotImplementedError("This provider does not support main business data")
+
+    def get_stock_news(self, page_size: int = 100) -> pd.DataFrame:
+        """Fetches stock news
+
+        Returns:
+            pd.DataFrame:
+            - title: 标题
+            - publish_time: 发布时间
+            - content: 内容摘要
+            - url: 链接
+        """
+        raise NotImplementedError("This provider does not support stock news")

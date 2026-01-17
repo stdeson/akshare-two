@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from akshare_one.indicators import (
+from akshare_two.indicators import (
     get_ad,
     get_adosc,
     get_adx,
@@ -39,7 +39,7 @@ from akshare_one.indicators import (
     get_ultosc,
     get_willr,
 )
-from akshare_one.modules.indicators.factory import TALIB_AVAILABLE
+from akshare_two.modules.indicators.factory import TALIB_AVAILABLE
 
 
 class TestIndicators(unittest.TestCase):

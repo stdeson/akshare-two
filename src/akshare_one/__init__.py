@@ -6,7 +6,7 @@ Provides standardized access to various financial data sources with:
 - Cleaned and normalized outputs
 
 Example:
-    >>> from akshare_one import get_hist_data, get_realtime_data
+    >>> from akshare_two import get_hist_data, get_realtime_data
     >>> # 获取股票历史数据
     >>> df = get_hist_data("600000", interval="day")
     >>> print(df.head())
@@ -17,13 +17,6 @@ Example:
 from typing import Literal
 
 import pandas as pd
-
-from .modules.financial.factory import FinancialDataFactory
-from .modules.historical.factory import HistoricalDataFactory
-from .modules.info.factory import InfoDataFactory
-from .modules.insider.factory import InsiderDataFactory
-from .modules.news.factory import NewsDataFactory
-from .modules.realtime.factory import RealtimeDataFactory
 
 
 def get_basic_info(
@@ -47,6 +40,7 @@ def get_basic_info(
         - industry: 行业
         - listing_date: 上市时间
     """
+    from .modules.info.factory import InfoDataFactory
     provider = InfoDataFactory.get_provider(source, symbol=symbol)
     return provider.get_basic_info()
 
@@ -80,6 +74,7 @@ def get_hist_data(
         - close: 收盘价
         - volume: 成交量
     """
+    from .modules.historical.factory import HistoricalDataFactory
     kwargs = {
         "symbol": symbol,
         "interval": interval,
@@ -116,6 +111,7 @@ def get_realtime_data(
         - low: 最低
         - prev_close: 昨收
     """
+    from .modules.realtime.factory import RealtimeDataFactory
     provider = RealtimeDataFactory.get_provider(source, symbol=symbol)
     return provider.get_current_data()
 

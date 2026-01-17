@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from akshare_one import get_news_data
+from akshare_two import get_news_data
 
 
 class TestNewsData:
@@ -50,7 +50,7 @@ class TestNewsData:
     def test_api_error_handling(self):
         """测试API错误处理"""
         with patch(
-            "akshare_one.modules.news.eastmoney.EastMoneyNews.get_news_data"
+            "akshare_two.modules.news.eastmoney.EastMoneyNews.get_news_data"
         ) as mock_get:
             mock_get.side_effect = Exception("API error")
             with pytest.raises(Exception, match="API error"):
@@ -64,7 +64,7 @@ class TestNewsData:
     def test_factory_error_handling(self):
         """测试工厂错误处理"""
         with patch(
-            "akshare_one.modules.news.factory.NewsDataFactory.get_provider"
+            "akshare_two.modules.news.factory.NewsDataFactory.get_provider"
         ) as mock_factory:
             mock_factory.side_effect = ValueError("Unsupported source")
             with pytest.raises(ValueError, match="Unsupported source"):

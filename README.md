@@ -16,28 +16,28 @@
 
 ## 🚀 Core Features
 
-| Function | Interface |
-|------|------|
-| Historical data | `get_hist_data` |
-| Real-time quotes | `get_realtime_data` |
-| Stock news | `get_news_data` |
-| Financial data | `get_balance_sheet`/`get_income_statement`/`get_cash_flow` |
-| Internal transactions | `get_inner_trade_data` |
-| Basic stock info | `get_basic_info` |
-| Financial metrics | `get_financial_metrics` |
-| Technical indicators | See [indicators.py](src/akshare_one/indicators.py) |
+| Function              | Interface                                                  |
+| --------------------- | ---------------------------------------------------------- |
+| Historical data       | `get_hist_data`                                            |
+| Real-time quotes      | `get_realtime_data`                                        |
+| Stock news            | `get_news_data`                                            |
+| Financial data        | `get_balance_sheet`/`get_income_statement`/`get_cash_flow` |
+| Internal transactions | `get_inner_trade_data`                                     |
+| Basic stock info      | `get_basic_info`                                           |
+| Financial metrics     | `get_financial_metrics`                                    |
+| Technical indicators  | See [indicators.py](src/akshare_two/indicators.py)         |
 
 ## 📦 Quick Installation
 
 ```bash
-pip install akshare-one
+pip install akshare-two
 ```
 
 ## 💻 Usage Example
 
 ```python
-from akshare_one import get_hist_data
-from akshare_one.indicators import get_sma
+from akshare_two import get_hist_data
+from akshare_two.indicators import get_sma
 
 # Get historical data
 df = get_hist_data(
@@ -54,4 +54,4 @@ df_sma = get_sma(df, window=20)
 
 Full API documentation is now available on GitHub Pages:
 
-https://zwldarren.github.io/akshare-one/
+https://zwldarren.github.io/akshare-two/

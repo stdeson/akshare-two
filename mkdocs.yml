@@ -1,10 +1,10 @@
 site_name: AKShare One
 site_description: 'Standardized interface for Chinese financial market data'
 site_author: 'zwldarren'
-site_url: 'https://zwldarren.github.io/akshare-one/'
+site_url: 'https://zwldarren.github.io/akshare-two/'
 
-repo_name: 'zwldarren/akshare-one'
-repo_url: 'https://github.com/zwldarren/akshare-one'
+repo_name: 'zwldarren/akshare-two'
+repo_url: 'https://github.com/zwldarren/akshare-two'
 
 theme:
   name: material

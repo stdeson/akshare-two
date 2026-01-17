@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-from akshare_one import get_inner_trade_data
+from akshare_two import get_inner_trade_data
 
 
 class TestInnerTradeData:
@@ -54,7 +54,7 @@ class TestInnerTradeData:
     def test_api_error_handling(self):
         """测试API错误处理"""
         with patch(
-            "akshare_one.modules.insider.xueqiu.XueQiuInsider.get_inner_trade_data"
+            "akshare_two.modules.insider.xueqiu.XueQiuInsider.get_inner_trade_data"
         ) as mock_get:
             mock_get.side_effect = Exception("API error")
             with pytest.raises(Exception, match="API error"):
@@ -63,7 +63,7 @@ class TestInnerTradeData:
     def test_factory_error_handling(self):
         """测试工厂错误处理"""
         with patch(
-            "akshare_one.modules.insider.factory.InsiderDataFactory.get_provider"
+            "akshare_two.modules.insider.factory.InsiderDataFactory.get_provider"
         ) as mock_factory:
             mock_factory.side_effect = ValueError("Unsupported source")
             with pytest.raises(ValueError, match="Unsupported source"):

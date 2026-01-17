@@ -26,3 +26,26 @@ class RealtimeDataProvider(ABC):
             - prev_close: 昨收
         """
         pass
+
+    def get_bid_ask_details(self) -> pd.DataFrame:
+        """Fetches bid/ask transaction details (内外盘)
+
+        Returns:
+            pd.DataFrame:
+            - time: 时间
+            - price: 价格
+            - volume: 成交量
+            - direction: 方向 (买/卖)
+        """
+        raise NotImplementedError("This provider does not support bid/ask details")
+
+    def get_auction_data(self) -> pd.DataFrame:
+        """Fetches pre-market auction data (盘前竞价)
+
+        Returns:
+            pd.DataFrame:
+            - time: 时间
+            - price: 价格
+            - volume: 成交量
+        """
+        raise NotImplementedError("This provider does not support auction data")

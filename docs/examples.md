@@ -6,7 +6,7 @@
 
 ```python
 import pandas as pd
-from akshare_one import get_realtime_data
+from akshare_two import get_realtime_data
 
 def get_batch_realtime_data(symbols):
     """
@@ -20,10 +20,10 @@ def get_batch_realtime_data(symbols):
                 all_data.append(df)
         except Exception as e:
             print(f"获取 {symbol} 数据失败: {e}")
-    
+
     if not all_data:
         return pd.DataFrame()
-        
+
     return pd.concat(all_data, ignore_index=True)
 
 # 股票列表
@@ -39,8 +39,8 @@ print(realtime_df)
 ```python
 import pandas as pd
 import matplotlib.pyplot as plt
-from akshare_one import get_hist_data
-from akshare_one.indicators import get_sma
+from akshare_two import get_hist_data
+from akshare_two.indicators import get_sma
 
 # 获取历史数据
 symbol = "600036"

@@ -188,7 +188,7 @@ wheels = [
 ]
 
 [[package]]
-name = "akshare-one"
+name = "akshare-two"
 version = "0.3.17"
 source = { editable = "." }
 dependencies = [

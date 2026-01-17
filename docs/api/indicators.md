@@ -1,9 +1,9 @@
 # 技术指标
 
-技术指标模块提供常见的技术分析指标计算功能，需要通过`akshare_one.indicators`模块调用：
+技术指标模块提供常见的技术分析指标计算功能，需要通过`akshare_two.indicators`模块调用：
 
 ```python
-from akshare_one.indicators import (
+from akshare_two.indicators import (
     get_sma, get_ema, get_rsi, get_macd, get_bollinger_bands, get_stoch, get_atr,
     get_cci, get_adx, get_willr, get_ad, get_adosc, get_obv, get_mom, get_sar,
     get_tsf, get_apo, get_aroon, get_aroonosc, get_bop, get_cmo, get_dx, get_mfi,
@@ -12,10 +12,7 @@ from akshare_one.indicators import (
 )
 ```
 
-!!! note
-    - `calculator_type`参数可以是`talib`或`simple`，默认值为`simple`
-    - `simple`使用python实现，可能会有错误，但不需要额外依赖，`talib`需要额外安装[TA-Lib](https://ta-lib.org/install/)依赖并使用`pip install akshare-one[talib]`安装
-    - 目前只实现了部分常用指标，后续会逐步完善
+!!! note - `calculator_type`参数可以是`talib`或`simple`，默认值为`simple` - `simple`使用python实现，可能会有错误，但不需要额外依赖，`talib`需要额外安装[TA-Lib](https://ta-lib.org/install/)依赖并使用`pip install akshare-two[talib]`安装 - 目前只实现了部分常用指标，后续会逐步完善
 
 - **简单移动平均线(SMA)**: `get_sma(df, window=20)`
 - **指数移动平均线(EMA)**: `get_ema(df, window=20)`
@@ -55,8 +52,8 @@ from akshare_one.indicators import (
 ## 示例
 
 ```python
-from akshare_one import get_hist_data
-from akshare_one.indicators import get_sma, get_macd
+from akshare_two import get_hist_data
+from akshare_two.indicators import get_sma, get_macd
 
 # 获取历史数据
 df = get_hist_data(symbol="600000", interval="day")

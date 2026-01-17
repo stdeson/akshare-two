@@ -5,8 +5,8 @@ import unittest
 import pandas as pd
 from cachetools import TTLCache
 
-from akshare_one import get_basic_info
-from akshare_one.modules.cache import CACHE_CONFIG
+from akshare_two import get_basic_info
+from akshare_two.modules.cache import CACHE_CONFIG
 
 
 class TestInfo(unittest.TestCase):
