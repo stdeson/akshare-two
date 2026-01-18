@@ -210,3 +210,78 @@ def get_inner_trade_data(
     """
     provider = InsiderDataFactory.get_provider(source, symbol=symbol)
     return provider.get_inner_trade_data()
+
+
+def stock_zt_pool_em(date: str = None) -> pd.DataFrame:
+    """获取涨停池数据
+    
+    Args:
+        date: 日期 YYYYMMDD 格式，默认为当天
+        
+    Returns:
+        pd.DataFrame: 涨停股票列表
+            - 代码: 股票代码
+            - 名称: 股票名称
+            - 涨跌幅: 涨跌幅(%)
+            - 连板数: 连续涨停天数
+            - 换手率: 换手率(%)
+            - 封板资金: 封板资金(元)
+            - 成交额: 成交额(元)
+    """
+    from datetime import datetime
+    from .eastmoney.client import EastMoneyClient
+    from .eastmoney.utils import parse_limit_up_pool
+    
+    if date is None:
+        date = datetime.now().strftime('%Y%m%d')
+    
+    client = EastMoneyClient()
+    raw_data = client.fetch_limit_up_pool(date)
+    return parse_limit_up_pool(raw_data)
+
+
+def stock_zh_index_spot_em() -> pd.DataFrame:
+    """获取指数实时行情
+    
+    Returns:
+        pd.DataFrame: 指数行情数据
+            - 代码: 指数代码
+            - 名称: 指数名称
+            - 最新价: 最新价
+            - 涨跌幅: 涨跌幅(%)
+            - 涨跌额: 涨跌额
+            - 成交量: 成交量(手)
+            - 成交额: 成交额(元)
+    """
+    from .eastmoney.client import EastMoneyClient
+    from .eastmoney.utils import parse_index_realtime
+    
+    client = EastMoneyClient()
+    raw_data = client.fetch_index_realtime()
+    return parse_index_realtime(raw_data)
+
+
+def stock_zh_a_spot_em() -> pd.DataFrame:
+    """获取A股实时行情
+    
+    Returns:
+        pd.DataFrame: 所有A股实时数据
+            - 代码: 股票代码
+            - 名称: 股票名称
+            - 最新价: 最新价
+            - 涨跌幅: 涨跌幅(%)
+            - 涨跌额: 涨跌额
+            - 成交量: 成交量(手)
+            - 成交额: 成交额(元)
+            - 今开: 今日开盘价
+            - 最高: 最高价
+            - 最低: 最低价
+            - 昨收: 昨日收盘价
+            - 换手率: 换手率(%)
+    """
+    from .eastmoney.client import EastMoneyClient
+    from .eastmoney.utils import parse_all_stocks_realtime
+    
+    client = EastMoneyClient()
+    raw_data = client.fetch_all_stocks_realtime()
+    return parse_all_stocks_realtime(raw_data)

@@ -227,3 +227,52 @@ class EastMoneyClient:
         response = self.session.get(url, params=params)
         response.raise_for_status()
         return response.json()  # type: ignore
+
+    def fetch_limit_up_pool(self, date: str) -> dict[str, Any]:
+        """
+        Fetches limit-up stocks pool data (涨停池数据).
+        
+        Args:
+            date: Date in YYYYMMDD format
+            
+        Returns:
+            dict: Raw limit-up pool data from EastMoney API
+        """
+        url = "https://datacenter-web.eastmoney.com/api/data/v1/get"
+        params = {
+            "reportName": "RPT_BILLBOARD_DAILYDETAILSBUY",
+            "filter": f"(TRADE_DATE='{date}')",
+            "pageNumber": "1",
+            "pageSize": "5000",
+            "sortColumns": "CHANGE_RATE",
+            "sortTypes": "-1",
+            "columns": "ALL",
+            "source": "WEB",
+            "client": "WEB",
+        }
+        response = self.session.get(url, params=params)
+        response.raise_for_status()
+        return response.json()  # type: ignore
+
+    def fetch_index_realtime(self) -> dict[str, Any]:
+        """
+        Fetches real-time index quotes (指数实时行情).
+        
+        Returns:
+            dict: Raw index data from EastMoney API
+        """
+        url = "https://push2.eastmoney.com/api/qt/clist/get"
+        params = {
+            "pn": "1",
+            "pz": "1000",
+            "po": "1",
+            "np": "1",
+            "fltt": "2",
+            "invt": "2",
+            "fid": "f3",
+            "fs": "m:1+s:2,m:0+t:5",  # Shanghai and Shenzhen indices
+            "fields": "f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152",
+        }
+        response = self.session.get(url, params=params)
+        response.raise_for_status()
+        return response.json()  # type: ignore

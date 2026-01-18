@@ -101,3 +101,92 @@ def resample_historical_data(
     )
 
     return resampled.reset_index()
+
+
+def parse_limit_up_pool(raw_data: dict[str, Any]) -> pd.DataFrame:
+    """
+    Parses limit-up pool data from the API response into a pandas DataFrame.
+    """
+    if raw_data.get("code") != 200:
+        return pd.DataFrame()
+    
+    result = raw_data.get("result", {})
+    data_list = result.get("data", [])
+    
+    if not data_list:
+        return pd.DataFrame()
+    
+    records = []
+    for item in data_list:
+        records.append({
+            "代码": item.get("SECURITY_CODE"),
+            "名称": item.get("SECURITY_NAME_ABBR"),
+            "涨跌幅": item.get("CHANGE_RATE"),
+            "连板数": item.get("CONTINUOUS_BOARD_NUM", 1),
+            "换手率": item.get("TURNOVER_RATE"),
+            "封板资金": item.get("CLOSE_FUND"),
+            "成交额": item.get("DEAL_AMOUNT"),
+        })
+    
+    return pd.DataFrame(records)
+
+
+def parse_index_realtime(raw_data: dict[str, Any]) -> pd.DataFrame:
+    """
+    Parses index real-time data from the API response into a pandas DataFrame.
+    """
+    if raw_data.get("rc") != 0:
+        return pd.DataFrame()
+    
+    data = raw_data.get("data", {})
+    diff_list = data.get("diff", [])
+    
+    if not diff_list:
+        return pd.DataFrame()
+    
+    records = []
+    for item in diff_list:
+        records.append({
+            "代码": item.get("f12"),
+            "名称": item.get("f14"),
+            "最新价": item.get("f2"),
+            "涨跌幅": item.get("f3"),
+            "涨跌额": item.get("f4"),
+            "成交量": item.get("f5"),
+            "成交额": item.get("f6"),
+        })
+    
+    return pd.DataFrame(records)
+
+
+def parse_all_stocks_realtime(raw_data: dict[str, Any]) -> pd.DataFrame:
+    """
+    Parses all A-share stocks real-time data from the API response into a pandas DataFrame.
+    """
+    if raw_data.get("rc") != 0:
+        return pd.DataFrame()
+    
+    data = raw_data.get("data", {})
+    diff_list = data.get("diff", [])
+    
+    if not diff_list:
+        return pd.DataFrame()
+    
+    records = []
+    for item in diff_list:
+        records.append({
+            "代码": item.get("f12"),
+            "名称": item.get("f14"),
+            "最新价": item.get("f2"),
+            "涨跌幅": item.get("f3"),
+            "涨跌额": item.get("f4"),
+            "成交量": item.get("f5"),
+            "成交额": item.get("f6"),
+            "今开": item.get("f17"),
+            "最高": item.get("f15"),
+            "最低": item.get("f16"),
+            "昨收": item.get("f18"),
+            "换手率": item.get("f8"),
+        })
+    
+    return pd.DataFrame(records)
