@@ -20,6 +20,7 @@ CACHE_CONFIG: dict[str, TTLCache[Any, Any]] = {
     "auction_cache": TTLCache(maxsize=500, ttl=60),  # 竞价缓存1分钟
     "main_business_cache": TTLCache(maxsize=500, ttl=86400),  # 主营业务缓存24小时
     "stock_news_cache": TTLCache(maxsize=500, ttl=3600),  # 个股新闻缓存1小时
+    "margin_cache": TTLCache(maxsize=500, ttl=3600),  # 融资融券缓存1小时
 }
 
 

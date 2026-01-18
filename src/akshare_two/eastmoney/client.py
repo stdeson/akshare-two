@@ -167,7 +167,7 @@ class EastMoneyClient:
             code = f"SH{symbol}"
         else:
             code = f"SZ{symbol}"
-        
+
         url = "https://emweb.securities.eastmoney.com/PC_HSF10/BusinessAnalysis/PageAjax"
         params = {"code": code}
         response = self.session.get(url, params=params)

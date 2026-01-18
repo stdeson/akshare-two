@@ -285,3 +285,26 @@ def stock_zh_a_spot_em() -> pd.DataFrame:
     client = EastMoneyClient()
     raw_data = client.fetch_all_stocks_realtime()
     return parse_all_stocks_realtime(raw_data)
+
+
+def get_margin_data(
+    date: str, source: Literal["jin10"] = "jin10"
+) -> dict:
+    """获取融资融券数据
+    
+    Args:
+        date: 日期 (YYYY-MM-DD format)
+        source: 数据源 ('jin10')
+        
+    Returns:
+        dict:
+        - date: 日期
+        - margin_balance: 融资余额 (亿元)
+        - margin_buy: 融资买入额 (亿元)
+        - margin_pure: 融资净买 (亿元)
+        - sh_balance: 上海融资余额 (亿元)
+        - sz_balance: 深圳融资余额 (亿元)
+    """
+    from .modules.market.margin_factory import MarginFactory
+    provider = MarginFactory.get_provider(source)
+    return provider.get_margin_data(date)
