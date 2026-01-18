@@ -302,12 +302,8 @@ def get_margin_data(
         
     Returns:
         dict:
-        - date: 日期
         - margin_balance: 融资余额 (亿元)
         - margin_buy: 融资买入额 (亿元)
-        - margin_pure: 融资净买 (亿元)
-        - sh_balance: 上海融资余额 (亿元)
-        - sz_balance: 深圳融资余额 (亿元)
     """
     from .modules.market.margin_factory import MarginFactory
     provider = MarginFactory.get_provider(source)
