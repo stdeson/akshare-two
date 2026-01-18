@@ -136,14 +136,14 @@ class Jin10:
             balance = float(target_data.get("balance", 0) or 0)
             buy = float(target_data.get("buy", 0) or 0)
 
-            prev_balance = None
+            prev_balance = 0
             if prev_data:
                 prev_balance = float(prev_data.get("balance", 0) or 0)
 
             return {
                 "balance": balance / 1e8,  # 转换为亿元
                 "buy": buy / 1e8,  # 转换为亿元
-                "prev_balance": prev_balance / 1e8 if prev_balance else None,
+                "prev_balance": prev_balance / 1e8,
             }
 
         except Exception:
