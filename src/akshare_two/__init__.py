@@ -18,6 +18,11 @@ from typing import Literal
 
 import pandas as pd
 
+from .modules.financial.factory import FinancialDataFactory
+from .modules.info.factory import InfoDataFactory
+from .modules.insider.factory import InsiderDataFactory
+from .modules.news.factory import NewsDataFactory
+
 
 def get_basic_info(
     symbol: str, source: Literal["eastmoney"] = "eastmoney"
@@ -40,7 +45,6 @@ def get_basic_info(
         - industry: 行业
         - listing_date: 上市时间
     """
-    from .modules.info.factory import InfoDataFactory
     provider = InfoDataFactory.get_provider(source, symbol=symbol)
     return provider.get_basic_info()
 
@@ -131,7 +135,7 @@ def get_news_data(
         - title: 新闻标题
         - content: 新闻内容
         - publish_time: 发布时间
-        - source: 文章来源
+        - source: 来源地
         - url: 新闻链接
     """
     provider = NewsDataFactory.get_provider(source, symbol=symbol)
