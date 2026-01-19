@@ -1,5 +1,4 @@
 from typing import Any
-
 import requests
 
 
@@ -209,12 +208,10 @@ class EastMoneyClient:
         return response.json()  # type: ignore
 
     def fetch_all_stocks_realtime(self) -> dict[str, Any]:
-        """
-        Fetches real-time data for all A-share stocks (分页获取全部数据).
-        """
+        """获取所有A股实时数据"""
         url = "https://push2.eastmoney.com/api/qt/clist/get"
         all_diff = []
-        page_size = 100
+        page_size = 2000
         pn = 1
         
         while True:
@@ -229,27 +226,22 @@ class EastMoneyClient:
                 "fs": "m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23",
                 "fields": "f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152",
             }
-            response = self.session.get(url, params=params)
-            data = response.json()
-            
+            r = self.session.get(url, params=params, timeout=10)
+            data = r.json()
             if data.get("rc") != 0:
                 break
-                
-            diff = data.get("data", {}).get("diff", []) or []
+            diff = data.get("data", {}).get("diff", [])
             if not diff:
                 break
-                
             all_diff.extend(diff)
-            
             total = data.get("data", {}).get("total", 0)
             if len(all_diff) >= total:
                 break
-                
             pn += 1
-            if pn > 100:  # 防止无限循环
+            if pn > 100:
                 break
-        
         return {"data": {"total": len(all_diff), "diff": all_diff}}
+        
 
     def fetch_limit_up_pool(self, date: str) -> dict[str, Any]:
         """
