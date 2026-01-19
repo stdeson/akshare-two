@@ -1,15 +1,10 @@
 import akshare as ak  # type: ignore
 import pandas as pd
 
-from ..cache import cache
 from .base import RealtimeDataProvider
 
 
 class EastmoneyRealtime(RealtimeDataProvider):
-    @cache(
-        "realtime_cache",
-        key=lambda self: f"eastmoney_{self.symbol if self.symbol else 'all'}",
-    )
     def get_current_data(self) -> pd.DataFrame:
         """获取沪深京A股实时行情数据"""
         raw_df = ak.stock_zh_a_spot_em()

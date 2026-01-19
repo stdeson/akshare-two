@@ -1,19 +1,12 @@
 import akshare as ak  # type: ignore
 import pandas as pd
 
-from ..cache import cache
 from .base import HistoricalDataProvider
 
 
 class EastMoneyHistorical(HistoricalDataProvider):
     """Adapter for EastMoney historical stock data API"""
 
-    @cache(
-        "hist_data_cache",
-        key=lambda self: (
-            f"eastmoney_hist_{self.symbol}_{self.interval}_{self.interval_multiplier}_{self.adjust}"
-        ),
-    )
     def get_hist_data(self) -> pd.DataFrame:
         """Fetches EastMoney historical market data
 

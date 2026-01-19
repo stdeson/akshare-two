@@ -1,7 +1,6 @@
 import pandas as pd
 
 from akshare_two.xueqiu.client import XueqiuClient
-from akshare_two.modules.cache import cache
 
 from .base import RealtimeDataProvider
 
@@ -13,7 +12,6 @@ class XueqiuDirectRealtime(RealtimeDataProvider):
         super().__init__(symbol)
         self.client = XueqiuClient()
 
-    @cache("realtime_cache", key=lambda self: f"xueqiu_direct_{self.symbol}")
     def get_current_data(self) -> pd.DataFrame:
         """获取实时行情数据"""
         raw_data = self.client.fetch_realtime_quote(self.symbol)

@@ -1,7 +1,6 @@
 import akshare as ak  # type: ignore
 import pandas as pd
 
-from ..cache import cache
 from .base import InfoDataProvider
 
 
@@ -18,10 +17,6 @@ class EastmoneyInfo(InfoDataProvider):
         "上市时间": "listing_date",
     }
 
-    @cache(
-        "info_cache",
-        key=lambda self: f"eastmoney_{self.symbol}",
-    )
     def get_basic_info(self) -> pd.DataFrame:
         """获取东方财富个股信息"""
         info_df = ak.stock_individual_info_em(symbol=self.symbol)

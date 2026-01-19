@@ -2,7 +2,6 @@ import pandas as pd
 
 from akshare_two.eastmoney.client import EastMoneyClient
 
-from ..cache import cache
 from .base import FundFlowProvider
 
 
@@ -13,7 +12,6 @@ class EastMoneyFundFlow(FundFlowProvider):
         super().__init__(symbol)
         self.client = EastMoneyClient()
 
-    @cache("fund_flow_cache", key=lambda self, period: f"fund_flow_{self.symbol}_{period}")
     def get_fund_flow(self, period: str = "daily") -> pd.DataFrame:
         """Get fund flow data"""
         klt_map = {"daily": "101", "weekly": "102", "monthly": "103"}

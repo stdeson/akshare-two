@@ -1,7 +1,6 @@
 import akshare as ak  # type: ignore
 import pandas as pd
 
-from ..cache import cache
 from .base import FinancialDataProvider
 
 
@@ -18,7 +17,6 @@ class SinaFinancialReport(FinancialDataProvider):
             f"sh{symbol}" if not symbol.startswith(("sh", "sz", "bj")) else symbol
         )
 
-    @cache("financial_cache", key=lambda self: f"sina_balance_{self.symbol}")
     def get_balance_sheet(self) -> pd.DataFrame:
         """获取资产负债表数据
 
@@ -40,7 +38,6 @@ class SinaFinancialReport(FinancialDataProvider):
                 f"Failed to get balance sheet for symbol {self.symbol}: {str(e)}"
             ) from e
 
-    @cache("financial_cache", key=lambda self: f"sina_income_{self.symbol}")
     def get_income_statement(self) -> pd.DataFrame:
         """获取利润表数据
 
@@ -60,7 +57,6 @@ class SinaFinancialReport(FinancialDataProvider):
                 f"Failed to get income statement for symbol {self.symbol}: {str(e)}"
             ) from e
 
-    @cache("financial_cache", key=lambda self: f"sina_cash_{self.symbol}")
     def get_cash_flow(self) -> pd.DataFrame:
         """获取现金流量表数据
 
@@ -313,7 +309,6 @@ class SinaFinancialReport(FinancialDataProvider):
         required_columns = ["report_date"] + list(column_mapping.values())
         return raw_df.rename(columns=column_mapping).reindex(columns=required_columns)
 
-    @cache("financial_cache", key=lambda self: f"sina_metrics_{self.symbol}")
     def get_financial_metrics(self) -> pd.DataFrame:
         """获取三大财务报表关键指标"""
         # Fetch all reports

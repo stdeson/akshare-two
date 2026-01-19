@@ -2,7 +2,6 @@ import pandas as pd
 
 from akshare_two.eastmoney.client import EastMoneyClient
 
-from ..cache import cache
 from .base import BillboardProvider
 
 
@@ -13,7 +12,6 @@ class EastMoneyBillboard(BillboardProvider):
         super().__init__(symbol)
         self.client = EastMoneyClient()
 
-    @cache("billboard_cache", key=lambda self, start_date, end_date: f"billboard_{self.symbol}_{start_date}_{end_date}")
     def get_billboard_detail(self, start_date: str = "", end_date: str = "") -> pd.DataFrame:
         """Get billboard detail data"""
         try:

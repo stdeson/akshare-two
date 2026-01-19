@@ -11,8 +11,6 @@ import pandas as pd
 
 from akshare_two.jin10.client import Jin10Client
 
-from ..cache import cache
-
 
 class Jin10:
     """
@@ -22,7 +20,6 @@ class Jin10:
     def __init__(self) -> None:
         self.client = Jin10Client()
 
-    @cache("margin_cache", key=lambda self, date: f"margin_{date}")
     def get_margin_data(self, date: str) -> Dict[str, Any]:
         """
         获取指定日期的融资融券数据.

@@ -2,7 +2,6 @@ import pandas as pd
 
 from akshare_two.eastmoney.client import EastMoneyClient
 
-from ..cache import cache
 from .base import InfoDataProvider
 
 
@@ -17,7 +16,6 @@ class EastMoneyDirectInfo(InfoDataProvider):
         """Get basic stock info - placeholder for future implementation"""
         raise NotImplementedError("Basic info not yet implemented in direct mode")
 
-    @cache("main_business_cache", key=lambda self: f"main_business_{self.symbol}")
     def get_main_business(self) -> pd.DataFrame:
         """Get main business composition data"""
         try:
@@ -49,7 +47,6 @@ class EastMoneyDirectInfo(InfoDataProvider):
         except Exception as e:
             raise ValueError(f"Failed to get main business data for {self.symbol}: {e}") from e
 
-    @cache("stock_news_cache", key=lambda self, page_size: f"stock_news_{self.symbol}_{page_size}")
     def get_stock_news(self, page_size: int = 100) -> pd.DataFrame:
         """Get stock news"""
         try:

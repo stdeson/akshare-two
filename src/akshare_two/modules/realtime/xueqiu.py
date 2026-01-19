@@ -1,16 +1,11 @@
 import akshare as ak  # type: ignore
 import pandas as pd
 
-from ..cache import cache
 from ..utils import convert_xieqiu_symbol
 from .base import RealtimeDataProvider
 
 
 class XueQiuRealtime(RealtimeDataProvider):
-    @cache(
-        "realtime_cache",
-        key=lambda self: f"xueqiu_{self.symbol}",
-    )
     def get_current_data(self) -> pd.DataFrame:
         """获取雪球实时行情数据
 

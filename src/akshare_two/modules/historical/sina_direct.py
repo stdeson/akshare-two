@@ -1,7 +1,6 @@
 import pandas as pd
 
 from akshare_two.sina.client import SinaClient
-from akshare_two.modules.cache import cache
 
 from .base import HistoricalDataProvider
 
@@ -21,10 +20,6 @@ class SinaDirectHistorical(HistoricalDataProvider):
         super().__init__(symbol, interval, interval_multiplier, start_date, end_date, adjust)
         self.client = SinaClient()
 
-    @cache(
-        "hist_data_cache",
-        key=lambda self: f"sina_direct_{self.symbol}_{self.interval}_{self.interval_multiplier}_{self.adjust}",
-    )
     def get_hist_data(self) -> pd.DataFrame:
         """获取历史数据"""
         if self.interval in ["minute", "hour"]:

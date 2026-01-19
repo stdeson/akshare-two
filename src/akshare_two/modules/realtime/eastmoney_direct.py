@@ -1,9 +1,9 @@
+from logftz import logger
 import pandas as pd
 
 from akshare_two.eastmoney.client import EastMoneyClient
 from akshare_two.eastmoney.utils import parse_realtime_data, parse_all_stocks_realtime
 
-from ..cache import cache
 from .base import RealtimeDataProvider
 
 
@@ -14,10 +14,6 @@ class EastMoneyDirectRealtime(RealtimeDataProvider):
         super().__init__(symbol)
         self.client = EastMoneyClient()
 
-    @cache(
-        "realtime_cache",
-        key=lambda self: f"eastmoney_direct_realtime_{self.symbol}",
-    )
     def get_current_data(self) -> pd.DataFrame:
         """Get real-time stock data"""
         try:
@@ -39,7 +35,6 @@ class EastMoneyDirectRealtime(RealtimeDataProvider):
                 f"Failed to get real-time data for {self.symbol}: {e}"
             ) from e
 
-    @cache("bid_ask_cache", key=lambda self: f"bid_ask_{self.symbol}")
     def get_bid_ask_details(self) -> pd.DataFrame:
         """Get bid/ask transaction details"""
         try:
@@ -75,7 +70,6 @@ class EastMoneyDirectRealtime(RealtimeDataProvider):
         except Exception as e:
             raise ValueError(f"Failed to get bid/ask details for {self.symbol}: {e}") from e
 
-    @cache("auction_cache", key=lambda self: f"auction_{self.symbol}")
     def get_auction_data(self) -> pd.DataFrame:
         """Get pre-market auction data"""
         try:
@@ -101,6 +95,7 @@ class EastMoneyDirectRealtime(RealtimeDataProvider):
 
     def get_all_stocks_realtime(self) -> pd.DataFrame:
         """Get realtime data for all stocks"""
+        logger.info('111')
         try:
             raw_data = self.client.fetch_all_stocks_realtime()
             return parse_all_stocks_realtime(raw_data)

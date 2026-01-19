@@ -3,8 +3,6 @@ import logging
 import pandas as pd
 import requests
 
-from akshare_two.modules.cache import cache
-
 from .base import FinancialDataProvider
 
 logger = logging.getLogger(__name__)
@@ -52,10 +50,6 @@ class EastMoneyDirectFinancialReport(FinancialDataProvider):
     def get_cash_flow(self) -> pd.DataFrame:
         return self._fetch_cash_flow()
 
-    @cache(
-        "financial_cache",
-        key=lambda self: f"eastmoney_financial_metrics_{self.symbol}",
-    )
     def get_financial_metrics(self) -> pd.DataFrame:
         """获取三大财务报表关键指标"""
         balance_sheet = self._fetch_balance_sheet()

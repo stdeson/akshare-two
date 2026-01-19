@@ -2,7 +2,6 @@ import pandas as pd
 
 from akshare_two.eastmoney.client import EastMoneyClient
 
-from ..cache import cache
 from .base import NewsDataProvider
 
 
@@ -11,7 +10,6 @@ class EastMoneyNews(NewsDataProvider):
         super().__init__(symbol)
         self.client = EastMoneyClient()
 
-    @cache("news_cache", key=lambda self: f"eastmoney_news_{self.symbol}")
     def get_news_data(self) -> pd.DataFrame:
         """获取东方财富个股新闻数据"""
         try:

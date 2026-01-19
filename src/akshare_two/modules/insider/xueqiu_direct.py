@@ -1,7 +1,6 @@
 import pandas as pd
 
 from akshare_two.xueqiu.client import XueqiuClient
-from akshare_two.modules.cache import cache
 
 from .base import InsiderDataProvider
 
@@ -13,10 +12,6 @@ class XueqiuDirectInsider(InsiderDataProvider):
         super().__init__(symbol)
         self.client = XueqiuClient()
 
-    @cache(
-        "financial_cache",
-        key=lambda self: f"xueqiu_direct_insider_{self.symbol if self.symbol else 'all'}",
-    )
     def get_inner_trade_data(self) -> pd.DataFrame:
         """获取内部交易数据"""
         raw_data = self.client.fetch_insider_trades(self.symbol)
