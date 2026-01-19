@@ -208,21 +208,21 @@ class EastMoneyClient:
         return response.json()  # type: ignore
 
     def fetch_all_stocks_realtime(self) -> dict[str, Any]:
-        """获取所有A股实时数据"""
+        """获取所有A股实时数据, 容易限流, 不用了"""
         url = "https://push2.eastmoney.com/api/qt/clist/get"
         all_diff = []
-        page_size = 2000
+        page_size = 100  # 最大就是100, 设高了没用
         pn = 1
         
         while True:
             params = {
                 "pn": str(pn),
-                "pz": page_size,
-                "po": "1",
-                "np": "1",
-                "fltt": "2",
-                "invt": "2",
-                "fid": "f3",
+                "pz": page_size,  # 每页大小
+                "po": "1",  # 降序
+                "np": "1",  # 
+                "fltt": "2",  # 精确浮点
+                "invt": "2",  # 百分比
+                "fid": "f3",  # 涨跌幅
                 "fs": "m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23",
                 "fields": "f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152",
             }
