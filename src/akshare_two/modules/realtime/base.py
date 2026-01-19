@@ -49,3 +49,22 @@ class RealtimeDataProvider(ABC):
             - volume: 成交量
         """
         raise NotImplementedError("This provider does not support auction data")
+
+    def get_all_stocks_realtime(self) -> pd.DataFrame:
+        """Fetches realtime data for all stocks (批量获取所有股票实时数据)
+
+        Returns:
+            pd.DataFrame:
+            - symbol: 股票代码
+            - name: 股票名称
+            - price: 最新价
+            - change: 涨跌额
+            - pct_change: 涨跌幅(%)
+            - volume: 成交量(手)
+            - amount: 成交额(元)
+            - open: 今开
+            - high: 最高
+            - low: 最低
+            - prev_close: 昨收
+        """
+        raise NotImplementedError("This provider does not support batch realtime data")

@@ -27,7 +27,7 @@ CACHE_CONFIG: dict[str, TTLCache[Any, Any]] = {
 def cache(cache_key: str, key: Callable[..., Any] | None = None) -> Callable[[F], F]:
     def decorator(func: F) -> F:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-            cache_enabled = os.getenv("AKSHARE_ONE_CACHE_ENABLED", "true").lower() in (
+            cache_enabled = os.getenv("AKSHARE_CACHE_ENABLED", "false").lower() in (
                 "1",
                 "true",
                 "yes",

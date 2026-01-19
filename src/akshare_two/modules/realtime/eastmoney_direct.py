@@ -1,7 +1,7 @@
 import pandas as pd
 
 from akshare_two.eastmoney.client import EastMoneyClient
-from akshare_two.eastmoney.utils import parse_realtime_data
+from akshare_two.eastmoney.utils import parse_realtime_data, parse_all_stocks_realtime
 
 from ..cache import cache
 from .base import RealtimeDataProvider
@@ -98,3 +98,11 @@ class EastMoneyDirectRealtime(RealtimeDataProvider):
 
         except Exception as e:
             raise ValueError(f"Failed to get auction data for {self.symbol}: {e}") from e
+
+    def get_all_stocks_realtime(self) -> pd.DataFrame:
+        """Get realtime data for all stocks"""
+        try:
+            raw_data = self.client.fetch_all_stocks_realtime()
+            return parse_all_stocks_realtime(raw_data)
+        except Exception as e:
+            raise ValueError(f"Failed to get all stocks realtime data: {e}") from e

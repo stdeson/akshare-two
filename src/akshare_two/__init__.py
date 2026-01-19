@@ -308,3 +308,31 @@ def get_margin_data(
     from .modules.market.margin_factory import MarginFactory
     provider = MarginFactory.get_provider(source)
     return provider.get_margin_data(date)
+
+
+def get_all_stocks_realtime(
+    source: Literal["eastmoney_direct"] = "eastmoney_direct"
+) -> pd.DataFrame:
+    """获取所有股票实时数据
+    
+    Args:
+        source: 数据源 ('eastmoney_direct')
+        
+    Returns:
+        pd.DataFrame: 所有A股实时数据
+            - symbol: 股票代码
+            - name: 股票名称
+            - price: 最新价
+            - change: 涨跌额
+            - pct_change: 涨跌幅(%)
+            - volume: 成交量(手)
+            - amount: 成交额(元)
+            - open: 今开
+            - high: 最高
+            - low: 最低
+            - prev_close: 昨收
+    """
+    from .modules.realtime.factory import RealtimeDataFactory
+    provider = RealtimeDataFactory.get_provider(source, symbol="")
+    return provider.get_all_stocks_realtime()
+
