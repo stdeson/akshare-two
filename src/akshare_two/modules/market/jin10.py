@@ -32,4 +32,4 @@ class Jin10:
                 - margin_balance: 融资余额 (亿元)
                 - margin_buy: 融资买入额 (亿元)
         """
-        return self.client.fetch_market_margin(date)
+        return self.client.get_margin_data(date)

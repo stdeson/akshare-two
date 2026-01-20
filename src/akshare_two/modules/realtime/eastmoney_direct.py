@@ -95,7 +95,6 @@ class EastMoneyDirectRealtime(RealtimeDataProvider):
 
     def get_all_stocks_realtime(self) -> pd.DataFrame:
         """Get realtime data for all stocks"""
-        logger.info('111')
         try:
             raw_data = self.client.fetch_all_stocks_realtime()
             return parse_all_stocks_realtime(raw_data)

@@ -15,15 +15,17 @@ class Jin10Client:
 
     def __init__(self) -> None:
         self.session = requests.Session()
-        self.session.headers.update({
-            "Accept": "*/*",
-            "Accept-Language": "zh-CN,zh;q=0.9",
-            "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
-            "Referer": "https://datacenter.jin10.com/",
-            "Origin": "https://datacenter.jin10.com",
-            "x-app-id": "rU6QIu7JHe2gOUeR",
-            "x-version": "1.0.0",
-        })
+        self.session.headers.update(
+            {
+                "Accept": "*/*",
+                "Accept-Language": "zh-CN,zh;q=0.9",
+                "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
+                "Referer": "https://datacenter.jin10.com/",
+                "Origin": "https://datacenter.jin10.com",
+                "x-app-id": "rU6QIu7JHe2gOUeR",
+                "x-version": "1.0.0",
+            }
+        )
         self.base_url = "https://datacenter-api.jin10.com"
 
     def _make_request(
@@ -37,7 +39,7 @@ class Jin10Client:
         response.raise_for_status()
         return response.json()
 
-    def fetch_market_margin(self, date: str) -> Dict[str, Any]:
+    def get_margin_data(self, date: str) -> Dict[str, Any]:
         """
         Fetch combined margin data for Shanghai and Shenzhen markets.
         API: https://datacenter-api.jin10.com/reports/list_v2
