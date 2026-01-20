@@ -1,338 +1,277 @@
-"""Akshare One - Unified interface for Chinese market data
+"""A股数据接口 - 简化版"""
 
-Provides standardized access to various financial data sources with:
-- Consistent symbol formats
-- Unified data schemas
-- Cleaned and normalized outputs
-
-Example:
-    >>> from akshare_two import get_hist_data, get_realtime_data
-    >>> # 获取股票历史数据
-    >>> df = get_hist_data("600000", interval="day")
-    >>> print(df.head())
-    >>> # 获取股票实时数据
-    >>> df = get_realtime_data(symbol="600000")
-"""
-
-from typing import Literal
+from typing import Any, Literal
 
 import pandas as pd
+import requests
 
-from .modules.financial.factory import FinancialDataFactory
-from .modules.info.factory import InfoDataFactory
-from .modules.insider.factory import InsiderDataFactory
-from .modules.news.factory import NewsDataFactory
+from .utils import (
+    get_secid,
+    parse_kline_data,
+    parse_realtime_data,
+    parse_limit_up_pool,
+    parse_index_realtime,
+    parse_all_stocks_realtime,
+    resample_historical_data,
+)
+
+_session = requests.Session()
 
 
-def get_basic_info(
-    symbol: str, source: Literal["eastmoney"] = "eastmoney"
-) -> pd.DataFrame:
-    """获取股票基础信息
+def _get(url: str, **kwargs) -> dict:
+    """统一请求方法"""
+    r = _session.get(url, timeout=30, **kwargs)
+    return r.json()
 
-    Args:
-        symbol: 股票代码 (e.g. '600000')
-        source: 数据源 ('eastmoney')
 
-    Returns:
-        pd.DataFrame:
-        - price: 最新价
-        - symbol: 股票代码
-        - name: 股票简称
-        - total_shares: 总股本
-        - float_shares: 流通股
-        - total_market_cap: 总市值
-        - float_market_cap: 流通市值
-        - industry: 行业
-        - listing_date: 上市时间
-    """
-    provider = InfoDataFactory.get_provider(source, symbol=symbol)
-    return provider.get_basic_info()
+def get_auction_data(symbol: str) -> dict | None:
+    """获取盘前竞价数据"""
+    secid = get_secid(symbol)
+    url = "https://push2his.eastmoney.com/api/qt/stock/trends2/get"
+    params = {
+        "secid": secid,
+        "fields1": "f1,f2,f3,f4,f5",
+        "fields2": "f51,f56,f57",
+        "ndays": "1",
+        "iscr": "1",
+        "iscca": "0",
+    }
+    data = _get(url, params=params)
+    trends = (data.get("data") or {}).get("trends") or []
+    for s in trends:
+        parts = s.split(",")
+        if parts[0].endswith("09:26"):
+            return {"time": parts[0], "price": float(parts[1]), "volume": int(float(parts[2]))}
+    return None
+
+
+def get_realtime_quote(symbol: str) -> pd.DataFrame:
+    """获取个股实时行情"""
+    secid = get_secid(symbol)
+    url = "https://push2.eastmoney.com/api/qt/stock/get"
+    params = {
+        "invt": "2",
+        "fltt": "2",
+        "fields": "f43,f57,f58,f169,f170,f46,f60,f44,f47,f48,f45",
+        "secid": secid,
+    }
+    raw = _get(url, params=params)
+    return parse_realtime_data(raw)
 
 
 def get_hist_data(
     symbol: str,
     interval: Literal["minute", "hour", "day", "week", "month", "year"] = "day",
     interval_multiplier: int = 1,
-    start_date: str = "1970-01-01",
-    end_date: str = "2030-12-31",
+    start_date: str = "19700101",
+    end_date: str = "20301231",
     adjust: Literal["none", "qfq", "hfq"] = "none",
-    source: Literal["eastmoney", "eastmoney_direct", "sina"] = "eastmoney_direct",
 ) -> pd.DataFrame:
-    """Get historical market data
+    """获取历史K线数据"""
+    secid = get_secid(symbol)
 
-    Args:
-        symbol: 股票代码 (e.g. '600000')
-        interval: 时间间隔 ('minute','hour','day','week','month','year')
-        interval_multiplier: 时间间隔倍数 (e.g. 5 for 5 minutes)
-        start_date: 开始日期 (YYYY-MM-DD)
-        end_date: 结束日期 (YYYY-MM-DD)
-        adjust: 复权类型 ('none','qfq','hfq')
-        source: 数据源 ('eastmoney', 'eastmoney_direct', 'sina')
+    klt_map = {"minute": "1", "hour": "60", "day": "101", "week": "102", "month": "103", "year": "104"}
+    fqt_map = {"none": "0", "qfq": "1", "hfq": "2"}
 
-    Returns:
-        pd.DataFrame:
-        - timestamp: 时间戳
-        - open: 开盘价
-        - high: 最高价
-        - low: 最低价
-        - close: 收盘价
-        - volume: 成交量
-    """
-    from .modules.historical.factory import HistoricalDataFactory
-    kwargs = {
-        "symbol": symbol,
-        "interval": interval,
-        "interval_multiplier": interval_multiplier,
-        "start_date": start_date,
-        "end_date": end_date,
-        "adjust": adjust,
+    url = "https://push2his.eastmoney.com/api/qt/stock/kline/get"
+    params = {
+        "fields1": "f1,f2,f3,f4,f5,f6",
+        "fields2": "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61",
+        "klt": klt_map.get(interval, "101"),
+        "fqt": fqt_map.get(adjust, "0"),
+        "secid": secid,
+        "beg": start_date,
+        "end": end_date,
     }
-    provider = HistoricalDataFactory.get_provider(source, **kwargs)
-    return provider.get_hist_data()
+
+    raw = _get(url, params=params)
+    df = parse_kline_data(raw)
+    return resample_historical_data(df, interval, interval_multiplier)
 
 
-def get_realtime_data(
-    symbol: str | None = None,
-    source: Literal["eastmoney", "eastmoney_direct", "xueqiu"] = "eastmoney_direct",
-) -> pd.DataFrame:
-    """Get real-time market quotes
+def get_fund_flow(symbol: str, klt: str = "101") -> pd.DataFrame:
+    """获取资金流向"""
+    secid = get_secid(symbol)
+    url = "https://push2.eastmoney.com/api/qt/stock/fflow/kline/get"
+    params = {
+        "lmt": "0",
+        "klt": klt,
+        "secid": secid,
+        "fields1": "f1,f2,f3,f7",
+        "fields2": "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63,f64,f65",
+    }
+    raw = _get(url, params=params)
+    klines = raw.get("data", {}).get("klines", [])
+    if not klines:
+        return pd.DataFrame()
 
-    Args:
-        symbol: 股票代码 (如 "600000")
-        source: 数据源 ('eastmoney', 'eastmoney_direct', 'xueqiu')
-
-    Returns:
-        pd.DataFrame:
-        - symbol: 股票代码
-        - price: 最新价
-        - change: 涨跌额
-        - pct_change: 涨跌幅(%)
-        - timestamp: 时间戳
-        - volume: 成交量(手)
-        - amount: 成交额(元)
-        - open: 今开
-        - high: 最高
-        - low: 最低
-        - prev_close: 昨收
-    """
-    from .modules.realtime.factory import RealtimeDataFactory
-    provider = RealtimeDataFactory.get_provider(source, symbol=symbol)
-    return provider.get_current_data()
+    records = []
+    for kline in klines:
+        parts = kline.split(",")
+        records.append({
+            "timestamp": parts[0],
+            "net_inflow": float(parts[2]),
+            "net_inflow_main": float(parts[3]),
+        })
+    return pd.DataFrame(records)
 
 
-def get_news_data(
-    symbol: str, source: Literal["eastmoney"] = "eastmoney"
-) -> pd.DataFrame:
-    """获取个股新闻数据
-
-    Args:
-        symbol: 股票代码 (如 "300059")
-        source: 数据源 ('eastmoney')
-
-    Returns:
-        pd.DataFrame:
-        - keyword: 关键词
-        - title: 新闻标题
-        - content: 新闻内容
-        - publish_time: 发布时间
-        - source: 来源地
-        - url: 新闻链接
-    """
-    provider = NewsDataFactory.get_provider(source, symbol=symbol)
-    return provider.get_news_data()
-
-
-def get_balance_sheet(symbol: str, source: Literal["sina"] = "sina") -> pd.DataFrame:
-    """获取资产负债表数据
-
-    Args:
-        symbol: 股票代码 (如 "600600")
-        source: 数据源 ("sina")
-
-    Returns:
-        pd.DataFrame: 资产负债表数据
-    """
-    provider = FinancialDataFactory.get_provider(source, symbol=symbol)
-    return provider.get_balance_sheet()
+def get_billboard_detail(symbol: str, start_date: str = "", end_date: str = "") -> dict:
+    """获取龙虎榜详情"""
+    url = "https://datacenter-web.eastmoney.com/api/data/v1/get"
+    filter_str = f'(SECURITY_CODE="{symbol}")'
+    if start_date:
+        filter_str += f'(TRADE_DATE>=\'{start_date}\')'
+    if end_date:
+        filter_str += f'(TRADE_DATE<=\'{end_date}\')'
+    params = {
+        "reportName": "RPT_BILLBOARD_DAILYDETAILSBUY",
+        "filter": filter_str,
+        "pageNumber": "1",
+        "pageSize": "500",
+        "sortColumns": "BUY",
+        "sortTypes": "-1",
+        "columns": "ALL",
+        "source": "WEB",
+        "client": "WEB",
+    }
+    return _get(url, params=params)
 
 
-def get_income_statement(symbol: str, source: Literal["sina"] = "sina") -> pd.DataFrame:
-    """获取利润表数据
+def get_bid_ask_details(symbol: str) -> pd.DataFrame:
+    """获取内外盘明细"""
+    secid = get_secid(symbol)
+    url = "https://push2.eastmoney.com/api/qt/stock/details/get"
+    params = {
+        "secid": secid,
+        "fields1": "f1,f2,f3,f4",
+        "fields2": "f51,f52,f53,f54,f55",
+    }
+    raw = _get(url, params=params)
+    details = (raw.get("data") or {}).get("details") or []
+    if not details:
+        return pd.DataFrame()
 
-    Args:
-        symbol: 股票代码 (如 "600600")
-        source: 数据源 ("sina")
-
-    Returns:
-        pd.DataFrame: 利润表数据
-    """
-    provider = FinancialDataFactory.get_provider(source, symbol=symbol)
-    return provider.get_income_statement()
-
-
-def get_cash_flow(symbol: str, source: Literal["sina"] = "sina") -> pd.DataFrame:
-    """获取现金流量表数据
-
-    Args:
-        symbol: 股票代码 (如 "600600")
-        source: 数据源 ("sina")
-
-    Returns:
-        pd.DataFrame: 现金流量表数据
-    """
-    provider = FinancialDataFactory.get_provider(source, symbol=symbol)
-    return provider.get_cash_flow()
-
-
-def get_financial_metrics(
-    symbol: str, source: Literal["eastmoney_direct"] = "eastmoney_direct"
-) -> pd.DataFrame:
-    """获取三大财务报表关键指标
-
-    Args:
-        symbol: 股票代码 (如 "600600")
-        source: 数据源 ('eastmoney_direct')
-
-    Returns:
-        pd.DataFrame: 财务关键指标数据
-    """
-    provider = FinancialDataFactory.get_provider(source, symbol=symbol)
-    return provider.get_financial_metrics()
+    lines = details.split(";") if isinstance(details, str) else details
+    records = []
+    for line in lines:
+        if line:
+            parts = line.split(",")
+            if len(parts) >= 4:
+                records.append({
+                    "time": parts[0],
+                    "price": float(parts[1]),
+                    "volume": int(parts[2]),
+                    "direction": "买" if int(parts[3]) == 1 else "卖",
+                })
+    return pd.DataFrame(records)
 
 
-def get_inner_trade_data(
-    symbol: str, source: Literal["xueqiu"] = "xueqiu"
-) -> pd.DataFrame:
-    """获取雪球内部交易数据
-
-    Args:
-        symbol: 股票代码，如"600000"
-        source: 数据源 (目前支持 "xueqiu")
-
-    Returns:
-        pd.DataFrame: 内部交易数据
-    """
-    provider = InsiderDataFactory.get_provider(source, symbol=symbol)
-    return provider.get_inner_trade_data()
+def get_stock_info(symbol: str) -> dict:
+    """获取股票基础信息"""
+    secid = get_secid(symbol)
+    url = "https://push2.eastmoney.com/api/qt/stock/get"
+    params = {
+        "invt": "2",
+        "fltt": "2",
+        "fields": "f57,f58,f43,f44,f45,f46,f47,f48,f169,f170",
+        "secid": secid,
+    }
+    return _get(url, params=params)
 
 
-def stock_zt_pool_em(date: str = None) -> pd.DataFrame:
-    """获取涨停池数据
-    
-    Args:
-        date: 日期 YYYYMMDD 格式，默认为当天
-        
-    Returns:
-        pd.DataFrame: 涨停股票列表
-            - 代码: 股票代码
-            - 名称: 股票名称
-            - 涨跌幅: 涨跌幅(%)
-            - 连板数: 连续涨停天数
-            - 换手率: 换手率(%)
-            - 封板资金: 封板资金(元)
-            - 成交额: 成交额(元)
-    """
-    from datetime import datetime
-    from .eastmoney.client import EastMoneyClient
-    from .eastmoney.utils import parse_limit_up_pool
-    
-    if date is None:
-        date = datetime.now().strftime('%Y%m%d')
-    
-    client = EastMoneyClient()
-    raw_data = client.fetch_limit_up_pool(date)
-    return parse_limit_up_pool(raw_data)
+def get_main_business(symbol: str) -> dict:
+    """获取主营业务"""
+    code = f"SH{symbol}" if symbol.startswith(("6", "5")) else f"SZ{symbol}"
+    url = "https://emweb.securities.eastmoney.com/PC_HSF10/BusinessAnalysis/PageAjax"
+    params = {"code": code}
+    return _get(url, params=params)
+
+
+def get_stock_news(symbol: str, page_size: int = 100, page_index: int = 1) -> dict:
+    """获取个股新闻"""
+    url = "https://np-listapi.eastmoney.com/comm/wap/getListInfo"
+    params = {
+        "client": "wap",
+        "type": "1",
+        "mTypeAndCode": f"0_{symbol}",
+        "pageSize": str(page_size),
+        "pageIndex": str(page_index),
+    }
+    return _get(url, params=params)
+
+
+def get_all_stocks_realtime() -> pd.DataFrame:
+    """获取所有A股实时行情"""
+    url = "https://push2.eastmoney.com/api/qt/clist/get"
+    all_diff = []
+    page_size = 100
+    pn = 1
+
+    while True:
+        params = {
+            "pn": str(pn),
+            "pz": page_size,
+            "po": "1",
+            "np": "1",
+            "fltt": "2",
+            "invt": "2",
+            "fid": "f3",
+            "fs": "m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23",
+            "fields": "f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152",
+        }
+        raw = _get(url, params=params)
+        if raw.get("rc") != 0:
+            break
+        diff = raw.get("data", {}).get("diff", [])
+        if not diff:
+            break
+        all_diff.extend(diff)
+        total = raw.get("data", {}).get("total", 0)
+        if len(all_diff) >= total:
+            break
+        pn += 1
+        if pn > 100:
+            break
+
+    return parse_all_stocks_realtime({"data": {"diff": all_diff}})
+
+
+def stock_zt_pool_em(date: str) -> pd.DataFrame:
+    """获取涨停池数据"""
+    url = "https://datacenter-web.eastmoney.com/api/data/v1/get"
+    params = {
+        "reportName": "RPT_BILLBOARD_DAILYDETAILSBUY",
+        "filter": f"(TRADE_DATE='{date}')",
+        "pageNumber": "1",
+        "pageSize": "5000",
+        "sortColumns": "CHANGE_RATE",
+        "sortTypes": "-1",
+        "columns": "ALL",
+        "source": "WEB",
+        "client": "WEB",
+    }
+    raw = _get(url, params=params)
+    return parse_limit_up_pool(raw)
 
 
 def stock_zh_index_spot_em() -> pd.DataFrame:
-    """获取指数实时行情
-    
-    Returns:
-        pd.DataFrame: 指数行情数据
-            - 代码: 指数代码
-            - 名称: 指数名称
-            - 最新价: 最新价
-            - 涨跌幅: 涨跌幅(%)
-            - 涨跌额: 涨跌额
-            - 成交量: 成交量(手)
-            - 成交额: 成交额(元)
-    """
-    from .eastmoney.client import EastMoneyClient
-    from .eastmoney.utils import parse_index_realtime
-    
-    client = EastMoneyClient()
-    raw_data = client.fetch_index_realtime()
-    return parse_index_realtime(raw_data)
+    """获取指数实时行情"""
+    url = "https://push2.eastmoney.com/api/qt/clist/get"
+    params = {
+        "pn": "1",
+        "pz": "1000",
+        "po": "1",
+        "np": "1",
+        "fltt": "2",
+        "invt": "2",
+        "fid": "f3",
+        "fs": "m:1+s:2,m:0+t:5",
+        "fields": "f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152",
+    }
+    raw = _get(url, params=params)
+    return parse_index_realtime(raw)
 
 
-def stock_zh_a_spot_em() -> pd.DataFrame:
-    """获取A股实时行情
-    
-    Returns:
-        pd.DataFrame: 所有A股实时数据
-            - 代码: 股票代码
-            - 名称: 股票名称
-            - 最新价: 最新价
-            - 涨跌幅: 涨跌幅(%)
-            - 涨跌额: 涨跌额
-            - 成交量: 成交量(手)
-            - 成交额: 成交额(元)
-            - 今开: 今日开盘价
-            - 最高: 最高价
-            - 最低: 最低价
-            - 昨收: 昨日收盘价
-            - 换手率: 换手率(%)
-    """
-    from .eastmoney.client import EastMoneyClient
-    from .eastmoney.utils import parse_all_stocks_realtime
-    
-    client = EastMoneyClient()
-    raw_data = client.fetch_all_stocks_realtime()
-    return parse_all_stocks_realtime(raw_data)
-
-
-def get_margin_data(
-    date: str, source: Literal["jin10"] = "jin10"
-) -> dict:
-    """获取融资融券数据
-    
-    Args:
-        date: 日期 (YYYY-MM-DD format)
-        source: 数据源 ('jin10')
-        
-    Returns:
-        dict:
-        - margin_balance: 融资余额 (亿元)
-        - margin_buy: 融资买入额 (亿元)
-    """
-    from .modules.market.margin_factory import MarginFactory
-    provider = MarginFactory.get_provider(source)
-    return provider.get_margin_data(date)
-
-
-def get_all_stocks_realtime(
-    source: Literal["eastmoney_direct"] = "eastmoney_direct"
-) -> pd.DataFrame:
-    """获取所有股票实时数据
-    
-    Args:
-        source: 数据源 ('eastmoney_direct')
-        
-    Returns:
-        pd.DataFrame: 所有A股实时数据
-            - symbol: 股票代码
-            - name: 股票名称
-            - price: 最新价
-            - change: 涨跌额
-            - pct_change: 涨跌幅(%)
-            - volume: 成交量(手)
-            - amount: 成交额(元)
-            - open: 今开
-            - high: 最高
-            - low: 最低
-            - prev_close: 昨收
-    """
-    from .modules.realtime.factory import RealtimeDataFactory
-    provider = RealtimeDataFactory.get_provider(source, symbol="")
-    return provider.get_all_stocks_realtime()
-
+# 兼容旧API名称
+get_realtime_data = get_realtime_quote
