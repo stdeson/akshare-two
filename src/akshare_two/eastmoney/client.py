@@ -14,34 +14,9 @@ class EastMoneyClient:
     def _get_security_id(self, symbol: str) -> str:
         """
         Converts a stock symbol to EastMoney's internal secid format.
-        e.g., '600519' -> '1.600519', '000001' -> '0.000001'
         """
-        symbol = symbol.upper()
-        if symbol.startswith("SZ"):
-            market = "0"
-            code = symbol[2:]
-        elif symbol.startswith("SH"):
-            market = "1"
-            code = symbol[2:]
-        elif symbol.startswith("HK"):
-            market = "116"
-            code = symbol[2:]
-        elif len(symbol) == 6:
-            if symbol.startswith(("000", "001", "002", "003", "300", "200")):
-                market = "0"
-            elif symbol.startswith(
-                ("600", "601", "603", "605", "688", "900", "5", "6")
-            ):
-                market = "1"
-            else:
-                market = "0"  # Default to SZ for ambiguity
-            code = symbol
-        elif len(symbol) == 5:  # HK Market
-            market = "116"
-            code = symbol
-        else:
-            market = "0"
-            code = symbol
+        market = 1 if symbol.startswith("6") else 0
+        code = symbol.replace('.SZ', '').replace('.SH', '')
         return f"{market}.{code}"
 
     def fetch_historical_klines(
@@ -147,15 +122,28 @@ class EastMoneyClient:
         """
         Fetches pre-market auction data (盘前竞价).
         """
-        url = "https://push2.eastmoney.com/api/qt/stock/auction/get"
+        url = "https://push2his.eastmoney.com/api/qt/stock/trends2/get"
         secid = self._get_security_id(symbol)
         params = {
             "secid": secid,
-            "fields": "f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13",
+            "fields1": "f1,f2,f3,f4,f5",
+            "fields2": "f51,f56,f57",  # f51=时间, f56=成交量, f57=成交额
+            "ndays": "1",
+            "iscr": "1",
+            "iscca": "0",
         }
-        response = self.session.get(url, params=params)
-        response.raise_for_status()
-        return response.json()  # type: ignore
+        data = requests.get(url, params=params, timeout=10).json()
+        trends = (data.get("data") or {}).get("trends") or []
+        if not trends:
+            return None
+        for s in trends:
+            parts = s.split(",")
+            t = parts[0]
+            if t.endswith("09:26"):
+                vol = float(parts[1])
+                amt = float(parts[2])
+                return t, vol, amt
+        return None
 
     def fetch_main_business(self, symbol: str) -> dict[str, Any]:
         """
@@ -213,7 +201,7 @@ class EastMoneyClient:
         all_diff = []
         page_size = 100  # 最大就是100, 设高了没用
         pn = 1
-        
+
         while True:
             params = {
                 "pn": str(pn),
@@ -241,7 +229,6 @@ class EastMoneyClient:
             if pn > 100:
                 break
         return {"data": {"total": len(all_diff), "diff": all_diff}}
-        
 
     def fetch_limit_up_pool(self, date: str) -> dict[str, Any]:
         """
